@@ -18,6 +18,9 @@ val name : 'a t -> string
 val to-string : ('a t) implicit -> 'a -> string
 val read-from-string : ('a t) implicit -> string -> 'a option
 
+val int : int t
+val string : string t
+
 end = struct
 
 type sexp = CrossRefExt-SExp.t
@@ -38,5 +41,32 @@ let to-string tp x = CrossRefExt-SExp.to-string (to-sexp tp x)
 let read-from-string tp str =
 CrossRefExt-SExp.read-from-string str
 |> Option.and-then (from-sexp tp)
+
+let from-sexp-def =
+let f _ = Option.none in
+(|
+  symbol = f;
+  string = f;
+  int = f;
+  list = f;
+|)
+
+let int = make (|
+  name = `int`;
+  to-sexp = CrossRefExt-SExp.of-int;
+  from-sexp = CrossRefExt-SExp.fold (|
+    from-sexp-def with
+    int = Option.some;
+  |);
+|)
+
+let string = make (|
+  name = `string`;
+  to-sexp = CrossRefExt-SExp.of-string;
+  from-sexp = CrossRefExt-SExp.fold (|
+    from-sexp-def with
+    string = Option.some;
+  |);
+|)
 
 end
