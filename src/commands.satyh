@@ -1,0 +1,67 @@
+@require: base/inline
+@require: base/list-ext
+@require: base/ord
+@require: base/int
+@require: base/string
+@require: base/char
+
+@import: cross-ref-ext
+
+module CrossRefExt-Commands : sig
+
+val \label-int : [string; int] inline-cmd
+val \ref-int : [string list] inline-cmd
+
+end = struct
+
+let label tp key x =
+let _ = CrossRefExt.register tp key x in
+{}
+
+let label-int = label CrossRefExt-Type.int
+
+let-inline \label-int key x = label-int key x
+
+let option-ord ord = Ord.make (fun x-o1 x-o2 -> (
+  match (x-o1, x-o2) with
+  | (None, None) -> Eq
+  | (None, Some _) -> Lt
+  | (Some _, None) -> Gt
+  | (Some x1, Some x2) -> Ord.compare ord x1 x2
+))
+
+let sp = String.of-char (Char.space)
+
+let-rec concat-and-3 s s-l =
+match s-l with
+| [] -> s
+| s1 :: [] -> String.(concat [
+  s; `,`; sp; `and`; sp; s1
+])
+| s1 :: s-l1 -> (
+  let s-new = String.(concat [
+    s; `,`; sp; s1
+  ]) in
+  concat-and-3 s-new s-l1
+)
+
+let concat-and s-l =
+match s-l with
+| [] -> String.empty
+| s :: [] -> s
+| s1 :: s2 :: [] -> String.(concat [
+  s1; sp; `and`; sp; s2
+])
+| s :: s-l1 -> concat-and-3 s s-l1
+
+let ref-int key-l =
+key-l
+|> List.map (CrossRefExt.get CrossRefExt-Type.int)
+|> List.mergesort (option-ord Int.ord)
+|> List.map (Option.map-or `?` arabic)
+|> concat-and
+|> embed-string
+
+let-inline \ref-int key-l = ref-int key-l
+
+end

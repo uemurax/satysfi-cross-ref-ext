@@ -1,0 +1,22 @@
+@require: stdjareport
+
+@import: ../src/commands
+
+open CrossRefExt-Commands
+
+in
+
+document (|
+  title = {CrossRefExt test};
+  author = {Taichi Uemura};
+|) '<
+  +p{
+    \label-int(`label1`)(1);
+    \label-int(`label2`)(2);
+    \label-int(`label3`)(3);
+    \label-int(`label4`)(4);
+    \label-int(`label5`)(5);
+    \label-int(`label6`)(6);
+    \ref-int[`label5`; `label3`; `label6`; `label0`; `label1`];
+  }
+>
