@@ -1,0 +1,42 @@
+@require: base/base
+@require: base/option-ext
+
+@import: sexp
+
+module CrossRefExt-Type : sig
+
+type 'a t
+
+val make : (|
+  to-sexp : 'a -> CrossRefExt-SExp.t;
+  from-sexp : CrossRefExt-SExp.t -> 'a option;
+  name : string;
+|) -> 'a t
+val to-sexp : ('a t) implicit -> 'a -> CrossRefExt-SExp.t
+val from-sexp : ('a t) implicit -> CrossRefExt-SExp.t -> 'a option
+val name : 'a t -> string
+val to-string : ('a t) implicit -> 'a -> string
+val read-from-string : ('a t) implicit -> string -> 'a option
+
+end = struct
+
+type sexp = CrossRefExt-SExp.t
+
+type 'a t = (|
+  to-sexp : 'a -> sexp;
+  from-sexp : sexp -> 'a option;
+  name : string;
+|)
+
+let make rec = rec
+let to-sexp tp = tp#to-sexp
+let from-sexp tp = tp#from-sexp
+let name tp = tp#name
+
+let to-string tp x = CrossRefExt-SExp.to-string (to-sexp tp x)
+
+let read-from-string tp str =
+CrossRefExt-SExp.read-from-string str
+|> Option.and-then (from-sexp tp)
+
+end

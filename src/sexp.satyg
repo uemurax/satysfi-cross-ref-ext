@@ -1,0 +1,37 @@
+@require: base/char
+@require: sexp/sexp
+@require: sexp/std-atom
+
+module CrossRefExt-SExp : sig
+
+type t
+
+val of-symbol : string -> t
+val of-string : string -> t
+val of-int : int -> t
+val of-list : t list -> t
+val to-string : t -> string
+val read : Char.t list -> (t * Char.t list) option
+val read-from-string : string -> t option
+
+end = struct
+
+type 'a sexp = 'a SExp.t
+type atom = SExp-StdAtom.t
+type t = atom sexp
+
+let of-atom = SExp.of-atom
+let of-list = SExp.of-list
+let to-string = SExp.to-string SExp-StdAtom.atom
+let read = SExp.read SExp-StdAtom.atom
+let read-from-string = SExp.read-from-string SExp-StdAtom.atom
+
+let symbol = SExp-StdAtom.of-symbol
+let string = SExp-StdAtom.of-string
+let int = SExp-StdAtom.of-int
+
+let of-symbol s = of-atom (symbol s)
+let of-string s = of-atom (string s)
+let of-int n = of-atom (int n)
+
+end

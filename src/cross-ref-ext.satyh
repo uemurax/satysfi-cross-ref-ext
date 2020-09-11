@@ -1,0 +1,24 @@
+@require: base/base
+@require: base/string
+@require: base/option-ext
+
+@import: type
+
+module CrossRefExt : sig
+
+val register : ('a CrossRefExt-Type.t) implicit -> string -> 'a -> unit
+val get : ('a CrossRefExt-Type.t) implicit -> string -> 'a option
+
+end = struct
+
+let key-mod tp key =
+String.concat [key; `::`; CrossRefExt-Type.name tp]
+
+let register tp key x =
+register-cross-reference (key-mod tp key) (CrossRefExt-Type.to-string tp x)
+
+let get tp key =
+get-cross-reference (key-mod tp key)
+|> Option.and-then (CrossRefExt-Type.read-from-string tp)
+
+end
