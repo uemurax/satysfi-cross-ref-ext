@@ -1,4 +1,6 @@
+@require: base/base
 @require: base/char
+@require: base/eq
 @require: sexp/sexp
 @require: sexp/std-atom
 
@@ -6,10 +8,18 @@ module CrossRefExt-SExp : sig
 
 type t
 
+val eq : (t Eq.t) implicit
+
 val of-symbol : string -> t
 val of-string : string -> t
 val of-int : int -> t
 val of-list : t list -> t
+val case : (|
+  symbol : string -> 'a;
+  string : string -> 'a;
+  int : int -> 'a;
+  list : t list -> 'a;
+|) -> t -> 'a
 val fold : (|
   symbol : string -> 'a;
   string : string -> 'a;
@@ -26,11 +36,20 @@ type 'a sexp = 'a SExp.t
 type atom = SExp-StdAtom.t
 type t = atom sexp
 
+let eq = SExp.eq (SExp-StdAtom.eq)
+
 let of-atom = SExp.of-atom
 let of-list = SExp.of-list
 let to-string = SExp.to-string SExp-StdAtom.atom
 let read = SExp.read SExp-StdAtom.atom
 let read-from-string = SExp.read-from-string SExp-StdAtom.atom
+
+let case rec = SExp.case (SExp-StdAtom.case (|
+  symbol = rec#symbol;
+  string = rec#string;
+  int = rec#int;
+|)) rec#list
+
 let fold rec = SExp.fold (SExp-StdAtom.case (|
   symbol = rec#symbol;
   string = rec#string;

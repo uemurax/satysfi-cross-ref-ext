@@ -1,0 +1,20 @@
+@require: zrbase/zmtdoc0
+@require: base/option-ext
+
+@import: ../src/type
+
+@import: log
+
+let l1 = [3; 4; 2; 5; 6]
+let _ = info-value `l1` (show-list arabic l1)
+let s1 = CrossRefExt-Type.(l1 |> to-sexp (list int))
+let _ = info-value `s1` (CrossRefExt-SExp.to-string s1)
+let l-o1 = CrossRefExt-Type.(l1 |> to-sexp (list int) |> from-sexp (list int))
+let _ = (
+  let l = Option.unwrap l-o1 in
+  info-value `l-o1` (show-list arabic l)
+)
+
+in
+
+document ()

@@ -1,0 +1,15 @@
+@require: zrbase/zlog0
+@require: base/string
+@require: base/char
+
+let sp = String.of-char Char.space
+
+let info-value name value =
+ZLog0.info (String.concat [
+  name; sp; `=`; sp; value
+])
+
+let show-list f x-l = String.(concat [
+  `[`; x-l |> List.map (fun x -> concat [f x; `;`; sp]) |> concat;
+  `]`;
+])

@@ -1,5 +1,7 @@
 @require: base/base
 @require: base/option-ext
+@require: base/string
+@require: base/char
 
 @import: sexp
 
@@ -18,8 +20,9 @@ val name : 'a t -> string
 val to-string : ('a t) implicit -> 'a -> string
 val read-from-string : ('a t) implicit -> string -> 'a option
 
-val int : int t
-val string : string t
+val int : (int t) implicit
+val string : (string t) implicit
+val list : ('a t) implicit -> (('a list) t) implicit
 
 end = struct
 
@@ -54,7 +57,7 @@ let f _ = Option.none in
 let int = make (|
   name = `int`;
   to-sexp = CrossRefExt-SExp.of-int;
-  from-sexp = CrossRefExt-SExp.fold (|
+  from-sexp = CrossRefExt-SExp.case (|
     from-sexp-def with
     int = Option.some;
   |);
@@ -63,9 +66,40 @@ let int = make (|
 let string = make (|
   name = `string`;
   to-sexp = CrossRefExt-SExp.of-string;
-  from-sexp = CrossRefExt-SExp.fold (|
+  from-sexp = CrossRefExt-SExp.case (|
     from-sexp-def with
     string = Option.some;
+  |);
+|)
+
+let sp = String.of-char Char.space
+
+let list-header = CrossRefExt-SExp.of-symbol `List`
+
+let list tp = make (|
+  name = String.(concat [
+    `(`; name tp; sp; `list`; `)`
+  ]);
+  to-sexp = fun ls -> (
+    ls
+    |> List.reverse-map (to-sexp tp)
+    |> List.cons list-header
+    |> CrossRefExt-SExp.of-list
+  );
+  from-sexp = CrossRefExt-SExp.case (|
+    from-sexp-def with
+    list = fun s-l -> (
+      match s-l with
+      | [] -> Option.none
+      | s :: s-l1 -> (
+        if Eq.equal CrossRefExt-SExp.eq s list-header then (
+          Option.fold-list s-l1 (fun s1 x-l -> (
+            from-sexp tp s1
+            |> Option.map (fun x -> x :: x-l)
+          )) []
+        ) else Option.none
+      )
+    );
   |);
 |)
 

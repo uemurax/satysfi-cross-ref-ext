@@ -10,7 +10,9 @@
 module CrossRefExt-Commands : sig
 
 val \label-int : [string; int] inline-cmd
+val \label-int-list : [string; int list] inline-cmd
 val \ref-int : [string list] inline-cmd
+val \ref-int-list : [string list] inline-cmd
 
 end = struct
 
@@ -21,6 +23,10 @@ let _ = CrossRefExt.register tp key x in
 let label-int = label CrossRefExt-Type.int
 
 let-inline \label-int key x = label-int key x
+
+let label-int-list = label CrossRefExt-Type.(list int)
+
+let-inline \label-int-list key x = label-int-list key x
 
 let option-ord ord = Ord.make (fun x-o1 x-o2 -> (
   match (x-o1, x-o2) with
@@ -63,5 +69,36 @@ key-l
 |> embed-string
 
 let-inline \ref-int key-l = ref-int key-l
+
+let-rec lex-ord ord = Ord.make (fun x-l1 x-l2 -> (
+  match (x-l1, x-l2) with
+  | ([], []) -> Eq
+  | ([], _ :: _) -> Lt
+  | (_ :: _, []) -> Gt
+  | (x1 :: x-l1, x2 :: x-l2) -> (
+    match Ord.compare ord x1 x2 with
+    | Eq -> Ord.compare (lex-ord ord) x-l1 x-l2
+    | Lt -> Lt
+    | Gt -> Gt
+  )
+))
+
+let-rec format-int-list n-l =
+match n-l with
+| [] -> String.empty
+| n :: [] -> arabic n
+| n :: n-l1 -> String.concat [
+  arabic n; `.`; format-int-list n-l1
+]
+
+let ref-int-list key-l =
+key-l
+|> List.map (CrossRefExt.get CrossRefExt-Type.(list int))
+|> List.mergesort (option-ord (lex-ord (Int.ord)))
+|> List.map (Option.map-or `?` format-int-list)
+|> concat-and
+|> embed-string
+
+let-inline \ref-int-list key-l = ref-int-list key-l
 
 end
