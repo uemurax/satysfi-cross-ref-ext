@@ -1,3 +1,4 @@
+@require: base/base
 @require: base/inline
 @require: base/list-ext
 @require: base/ord
@@ -13,6 +14,8 @@ val \label-int : [string; int] inline-cmd
 val \label-int-list : [string; int list] inline-cmd
 val \ref-int : [string list] inline-cmd
 val \ref-int-list : [string list] inline-cmd
+
+val ref-sort : ('a CrossRefExt-Type.t) implicit -> ('a Ord.t) implicit -> ('a -> string) -> string list -> inline-text
 
 end = struct
 
@@ -60,13 +63,15 @@ match s-l with
 ])
 | s :: s-l1 -> concat-and-3 s s-l1
 
-let ref-int key-l =
+let ref-sort tp ord format key-l =
 key-l
-|> List.map (CrossRefExt.get CrossRefExt-Type.int)
-|> List.mergesort (option-ord Int.ord)
-|> List.map (Option.map-or `?` arabic)
+|> List.map (CrossRefExt.get tp)
+|> List.mergesort (option-ord ord)
+|> List.map (Option.map-or `?` format)
 |> concat-and
 |> embed-string
+
+let ref-int = ref-sort CrossRefExt-Type.int Int.ord arabic
 
 let-inline \ref-int key-l = ref-int key-l
 
@@ -91,13 +96,7 @@ match n-l with
   arabic n; `.`; format-int-list n-l1
 ]
 
-let ref-int-list key-l =
-key-l
-|> List.map (CrossRefExt.get CrossRefExt-Type.(list int))
-|> List.mergesort (option-ord (lex-ord (Int.ord)))
-|> List.map (Option.map-or `?` format-int-list)
-|> concat-and
-|> embed-string
+let ref-int-list = ref-sort CrossRefExt-Type.(list int) (lex-ord (Int.ord)) format-int-list
 
 let-inline \ref-int-list key-l = ref-int-list key-l
 
