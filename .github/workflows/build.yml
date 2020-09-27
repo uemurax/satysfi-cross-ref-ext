@@ -1,0 +1,27 @@
+name: build
+
+on: [push, pull_request]
+
+jobs:
+  regression-test:
+    name: Check sanity of opam/Satyristes
+    runs-on: ubuntu-latest
+    container:
+      image: zeptometer/satysfi-yarn-diff-pdf:satysfi0.0.5
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Yarn dependencies
+        run: yarn install
+      - name: Try to install cross-ref-ext
+        run: |
+          export HOME=/root
+          eval $(opam env)
+          opam update
+          opam pin add satysfi-sexp git://github.com/uemurax/satysfi-sexp
+          opam pin add "file://${PWD}"
+          satyrographos install -l cross-ref-ext
+      - name: Run regression tests
+        run: |
+          export HOME=/root
+          eval $(opam env)
+          yarn test --ci
