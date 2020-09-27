@@ -20,10 +20,24 @@ function compilerOutput(src) {
     }
 }
 
+function pdfOutput(src) {
+    const tmpFile = tmp.fileSync();
+    const code = shell
+          .exec(`satysfi ${src} -o ${tmpFile.name} -b --debug-show-bbox --debug-show-block-bbox`)
+          .code;
+    const pdfBuffer = fs.readFileSync(tmpFile.name);
+    return {
+        code,
+        pdfBuffer,
+    };
+}
+
 const baseDir = "base"
+const typesetDir = "typeset"
 
 afterAll(() => {
     shell.rm(`${baseDir}/*.satysfi-aux`);
+    shell.rm(`${typesetDir}/*.satysfi-aux`);
 });
 
 test("SATySFi is installed", () => {
@@ -39,6 +53,19 @@ describe("Snapshot tests (compiler outputs)", () => {
             const res = compilerOutput(`${baseDir}/${filename}`);
             expect(res.code).toBe(0);
             expect(res.stdout).toMatchSnapshot();
+        });
+    }
+});
+
+describe("Snapshot tests (PDF outputs)", () => {
+    const filenames = [
+        "commands.saty",
+    ];
+    for (const filename of filenames) {
+        test(`pdf output of ${filename}`, () => {
+            const res = pdfOutput(`${typesetDir}/${filename}`);
+            expect(res.code).toBe(0);
+            expect(res.pdfBuffer).toMatchPdfSnapshot();
         });
     }
 });

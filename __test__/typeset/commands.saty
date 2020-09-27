@@ -1,0 +1,35 @@
+@require: stdjareport
+
+@import: ../../src/commands
+
+open CrossRefExt-Commands
+
+in
+
+document (|
+  title = {CrossRefExt test};
+  author = {Taichi Uemura};
+|) '<
+  +p{
+    \label-int(`label1`)(1);%
+    \label-int(`label2`)(2);%
+    \label-int(`label3`)(3);%
+    \label-int(`label4`)(4);%
+    \label-int(`label5`)(5);%
+    \label-int(`label6`)(6);%
+    \ref-int[`label5`; `label3`; `label6`; `label0`; `label1`];
+  }
+  +p{
+    \label-int-list(`label-l1`)[1];%
+    \label-int-list(`label-l2`)[1; 1];%
+    \label-int-list(`label-l3`)[1; 2];%
+    \label-int-list(`label-l4`)[1; 2; 1];%
+    \label-int-list(`label-l5`)[2];%
+    \label-int-list(`label-l6`)[2; 1];%
+    \label-int-list(`label-l7`)[2; 2];%
+    \label-int-list(`label-l8`)[2; 2; 1];%
+    \ref-int-list[`label-l5`; `label-l7`; `label-l2`; `label-l4`];.
+    \ref-int[`label-l8`];.
+    \ref-int-list[`label2`];.
+  }
+>
