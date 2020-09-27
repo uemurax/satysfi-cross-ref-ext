@@ -1,0 +1,11 @@
+(version 0.0.2)
+
+(library
+ (name "cross-ref-ext")
+ (version "0.1.0")
+ (sources
+  ((packageDir "src")))
+ (opam "satysfi-cross-ref-ext.opam")
+ (dependencies
+  ((base ())
+   (sexp ()))))
