@@ -2,6 +2,7 @@
 @require: base/option-ext
 @require: base/string
 @require: base/char
+@require: base/eq
 
 @import: sexp
 
@@ -9,6 +10,7 @@ module CrossRefExt-Type : sig
 
 type 'a t
 
+% `from-sexp (to-sexp x)` should be `Some x`
 val make : (|
   to-sexp : 'a -> CrossRefExt-SExp.t;
   from-sexp : CrossRefExt-SExp.t -> 'a option;
@@ -23,6 +25,9 @@ val read-from-string : ('a t) implicit -> string -> 'a option
 val int : (int t) implicit
 val string : (string t) implicit
 val list : ('a t) implicit -> (('a list) t) implicit
+
+% test if `from-sexp (to-sexp x) == x`
+val test : ('a t) implicit -> ('a Eq.t) implicit -> 'a -> bool
 
 end = struct
 
@@ -53,6 +58,11 @@ let f _ = Option.none in
   int = f;
   list = f;
 |)
+
+let test tp eq x =
+to-sexp tp x
+|> from-sexp tp
+|> Option.map-or false (fun y -> Eq.equal eq x y)
 
 let int = make (|
   name = `int`;

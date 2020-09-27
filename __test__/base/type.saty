@@ -1,0 +1,26 @@
+@import: header
+@import: ../../src/type
+
+@require: base/int
+@require: base/string
+@require: base/list-ext
+
+let info s =
+display-message (`[INFO] `# ^ s)
+
+let test name b =
+if b then info (name ^ #` passed`)
+else abort-with-message (name ^ #` failed`)
+
+let n1 = 6
+let _ = test `n1` CrossRefExt-Type.(test int Int.eq n1)
+let n2 = -334
+let _ = test `n2` CrossRefExt-Type.(test int Int.eq n2)
+let s1 = `some "string"`
+let _ = test `s1` CrossRefExt-Type.(test string String.eq s1)
+let l1 = [3; 4; -5; 0; 2]
+let _ = test `l1` CrossRefExt-Type.(test (list int) (List.eq Int.eq) l1)
+
+in
+
+document ()

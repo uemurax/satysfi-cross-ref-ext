@@ -1,0 +1,13 @@
+let document _ =
+page-break A4Paper
+(fun _ -> (|
+  text-origin = (0pt, 0pt);
+  text-height = 0pt;
+|))
+(fun _ -> (|
+  header-content = block-nil;
+  header-origin = (0pt, 0pt);
+  footer-origin = (0pt, 0pt);
+  footer-content = block-nil;
+|))
+block-nil

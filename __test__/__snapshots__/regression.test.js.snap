@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Snapshot tests (compiler outputs) compiler output of type.saty 1`] = `
+"[INFO] n1 passed
+[INFO] n2 passed
+[INFO] s1 passed
+[INFO] l1 passed
+"
+`;
