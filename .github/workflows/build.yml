@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   regression-test:
-    name: Check sanity of opam/Satyristes
+    name: Run regression test
     runs-on: ubuntu-latest
     container:
       image: zeptometer/satysfi-yarn-diff-pdf:satysfi0.0.5
